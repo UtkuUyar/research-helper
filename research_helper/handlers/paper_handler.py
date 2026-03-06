@@ -7,7 +7,7 @@ from typing import List
 from langchain.messages import SystemMessage, HumanMessage
 
 from research_helper.utils import get_section_summary_prompts, get_paper_summary_prompts
-
+from .rag import ChunkHandler, VectorStoreHandler
 
 class SectionSummary(BaseModel):
     summary: str
@@ -24,10 +24,33 @@ class PaperSummary(BaseModel):
 
 
 class PaperHandler:
-    def __init__(self, llm, file_path=None, output_dir=None):
+    def __init__(
+            self,
+            llm,
+            chunk_size=800,
+            chunk_overlap=150,
+            embedding_model="nomic-embed-text",
+            summarize=True,
+            file_path=None,
+            output_dir=None
+        ):
+
         self.llm = llm
         self.output_dir = output_dir
         
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.chunker = ChunkHandler(
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap
+        )
+
+        self.embedding_model = embedding_model
+        self.vec_db_handler = VectorStoreHandler(
+            embedding_model=embedding_model
+        )
+        
+        self.summarize = summarize
         if file_path is not None:
             self.process_paper(file_path)
 
@@ -35,8 +58,13 @@ class PaperHandler:
         self.file_path = file_path
         self.md_text = self.read_document()
         self.sections = self.split_sections()
-        self.section_summaries = self.summarize_sections()
-        self.paper_summary = self.summarize_paper()
+        
+        if self.summarize:
+            self.section_summaries = self.summarize_sections()
+            self.paper_summary = self.summarize_paper()
+
+        self.chunks = self.chunker.chunk_sections(self.sections)
+        self.vec_db_handler.build_index(self.chunks)
 
     def clear(self):
         self.file_path = None
@@ -44,6 +72,9 @@ class PaperHandler:
         self.sections = None
         self.section_summaries = None
         self.paper_summary = None
+
+        self.chunks = None
+        self.vec_db_handler.clear()
 
     def save(self):
         (self.output_dir / "md_text.md").write_bytes(self.md_text.encode())
