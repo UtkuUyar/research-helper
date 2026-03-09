@@ -1,2 +1,2 @@
-from chunk_handler import ChunkHandler
-from vector_store_handler import VectorStoreHandler
+from .chunk_handler import ChunkHandler
+from .vector_store_handler import VectorStoreHandler
