@@ -1,9 +1,11 @@
+import os
 import json
 import re
 import pymupdf4llm
 
 from pydantic import BaseModel
 from typing import List
+from langchain_openai import ChatOpenAI
 from langchain.messages import SystemMessage, HumanMessage
 
 from research_helper.utils import get_section_summary_prompts, get_paper_summary_prompts
@@ -12,7 +14,7 @@ from .rag import ChunkHandler, VectorStoreHandler
 class SectionSummary(BaseModel):
     summary: str
     key_points: List[str]
-    important_entities: List[str]
+    important_entities: List[str] = []
 
 
 class PaperSummary(BaseModel):
@@ -20,46 +22,52 @@ class PaperSummary(BaseModel):
     key_contributions: List[str]
     method_overview: str
     experimental_findings: List[str]
-    limitations: List[str]
+    limitations: List[str] = []
 
 
 class PaperHandler:
     def __init__(
             self,
-            llm,
             chunk_size=800,
             chunk_overlap=150,
-            embedding_model="nomic-embed-text",
+            embedding_model="all-MiniLM-L6-v2",
             summarize=True,
             file_path=None,
             output_dir=None
         ):
 
-        self.llm = llm
         self.output_dir = output_dir
-        
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self.embedding_model = embedding_model
+        self.summarize = summarize
+
+        self.llm = ChatOpenAI(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            api_key=os.environ.get("GROQ_API_KEY"),
+            base_url="https://api.groq.com/openai/v1"
+        )
+
         self.chunker = ChunkHandler(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap
         )
 
-        self.embedding_model = embedding_model
         self.vec_db_handler = VectorStoreHandler(
             embedding_model=embedding_model
         )
         
-        self.summarize = summarize
         if file_path is not None:
             self.process_paper(file_path)
 
     def process_paper(self, file_path):
         self.file_path = file_path
         self.md_text = self.read_document()
+        self.title = self.extract_title()
         self.sections = self.split_sections()
         
         if self.summarize:
+            print("Summarizing the paper...")
             self.section_summaries = self.summarize_sections()
             self.paper_summary = self.summarize_paper()
 
@@ -87,6 +95,13 @@ class PaperHandler:
 
         with open(self.output_dir / "paper_summary.json", "w") as f:
             json.dump(self.paper_summary.model_dump(), f, indent=2)
+
+    def extract_title(self):
+        for line in self.md_text.splitlines():
+            line = line.strip()
+            if line.startswith("# "):
+                return line[2:].strip()
+        return None
 
     def read_document(self):
         return pymupdf4llm.to_markdown(self.file_path)

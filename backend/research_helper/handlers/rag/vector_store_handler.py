@@ -1,11 +1,11 @@
-from langchain_ollama import OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
 class VectorStoreHandler:
 
-    def __init__(self, embedding_model="nomic-embed-text"):
-        self.embeddings = OllamaEmbeddings(model=embedding_model)
+    def __init__(self, embedding_model="all-MiniLM-L6-v2"):
+        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
         self.vectorstore = None
 
     def build_index(self, documents):

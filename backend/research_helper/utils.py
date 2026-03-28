@@ -34,6 +34,7 @@ def get_section_summary_prompts(section):
         "- algorithms\n"
         "- evaluation metrics\n"
         "- benchmarks\n"
+        "\nRespond in JSON format.\n"
     )
 
     section_prompt = (
@@ -74,6 +75,7 @@ def get_paper_summary_prompts(section_summaries):
         "- Only use information from the provided section summaries.\n"
         "- Do not hallucinate missing details.\n"
         "- Keep explanations concise but informative.\n"
+        "- Respond in JSON format.\n"
     )
 
     prompt = (
@@ -97,15 +99,34 @@ def get_paper_summary_prompts(section_summaries):
 
     return system_prompt, prompt.format(sections=sections_text)
 
-def get_chat_agent_prompt():
+def get_chat_agent_prompt(paper_name=None, paper_summary=None):
+    summary_block = ""
+    if paper_name:
+        summary_block += f"Paper: {paper_name}\n\n"
+    if paper_summary:
+        summary_block += (
+            "Paper Summary:\n"
+            f"- Research Problem: {paper_summary.research_problem}\n"
+            f"- Key Contributions: {'; '.join(paper_summary.key_contributions)}\n"
+            f"- Method Overview: {paper_summary.method_overview}\n"
+            f"- Experimental Findings: {'; '.join(paper_summary.experimental_findings)}\n"
+            f"- Limitations: {'; '.join(paper_summary.limitations) if paper_summary.limitations else 'None mentioned'}\n"
+            "\n"
+            "Use the above summary to answer high-level questions about the paper "
+            "(e.g. contributions, research problem, overview). "
+            "For specific details, always use the retrieval tool.\n"
+        )
+
     return (
         "You are a research assistant that answers questions about a scientific paper.\n\n"
+        + summary_block +
         "You have access to a tool that retrieves relevant parts of the paper.\n"
-        "Use this tool whenever you need information from the paper before answering.\n\n"
+        "Use this tool whenever you need specific information from the paper before answering.\n\n"
 
         "Guidelines:\n"
-        "- Always retrieve context from the paper before answering factual questions.\n"
-        "- Base your answer ONLY on the retrieved context.\n"
+        "- For high-level questions (contributions, problem, overview), use the summary above.\n"
+        "- For specific factual questions, always retrieve context first.\n"
+        "- Base your answer ONLY on the summary or retrieved context.\n"
         "- Do not invent information that does not appear in the paper.\n"
         "- If the retrieved context does not contain enough information, say that the "
         "answer cannot be determined from the paper.\n\n"
