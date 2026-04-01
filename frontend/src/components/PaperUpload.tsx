@@ -63,33 +63,94 @@ function PaperUpload({ onUploadSuccess, onCancel }: Props) {
     }
 
     return (
-        <div className="flex-grow-1 p-4 bg-light">
-            <h2 className="text-center">Upload Paper</h2>
-            <form className="mt-3" onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <input
-                        type="file"
-                        className="form-control"
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                    />
+        <div className="flex-grow-1 d-flex align-items-center justify-content-center bg-light p-4">
+            <div
+                className="bg-white rounded-3 shadow-sm border p-5"
+                style={{ width: "100%", maxWidth: "480px" }}
+            >
+                <div className="text-center mb-4">
+                    <div style={{ fontSize: "2.5rem" }}>📄</div>
+                    <h4 className="fw-bold mt-2 mb-1">Upload a Paper</h4>
+                    <p className="text-muted small mb-0">
+                        PDF files only. Processing may take a moment.
+                    </p>
                 </div>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <button
-                    type="submit"
-                    className="btn btn-primary w-100"
-                    disabled={loading}
-                >
-                    {loading ? "Uploading..." : "Upload"}
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-secondary w-100"
-                    onClick={onCancel}
-                >
-                    Cancel
-                </button>
-            </form>
+
+                <form onSubmit={handleSubmit}>
+                    <label
+                        className="d-block text-center rounded-3 p-4 mb-3"
+                        style={{
+                            border: "2px dashed #dee2e6",
+                            cursor: "pointer",
+                            background: file ? "#f0f9ff" : "#f8f9fa",
+                            transition: "background 0.2s",
+                        }}
+                    >
+                        <input
+                            type="file"
+                            accept=".pdf"
+                            className="d-none"
+                            onChange={handleFileChange}
+                        />
+                        {file ? (
+                            <>
+                                <div style={{ fontSize: "1.5rem" }}>✅</div>
+                                <div
+                                    className="fw-semibold mt-1"
+                                    style={{ wordBreak: "break-all" }}
+                                >
+                                    {file.name}
+                                </div>
+                                <div className="text-muted small mt-1">
+                                    Click to change file
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div style={{ fontSize: "1.5rem" }}>📁</div>
+                                <div className="fw-semibold mt-1">
+                                    Click to select a PDF
+                                </div>
+                                <div className="text-muted small mt-1">
+                                    or drag and drop here
+                                </div>
+                            </>
+                        )}
+                    </label>
+
+                    {error && (
+                        <div className="alert alert-danger py-2 small">
+                            {error}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="btn btn-primary w-100"
+                        disabled={loading || !file}
+                    >
+                        {loading ? (
+                            <>
+                                <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                />
+                                Analyzing paper...
+                            </>
+                        ) : (
+                            "Upload & Analyze"
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn btn-link w-100 mt-2 text-muted text-decoration-none"
+                        onClick={onCancel}
+                    >
+                        Cancel
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }
