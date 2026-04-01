@@ -135,7 +135,9 @@ def get_chat_agent_prompt(paper_name=None, paper_summary=None):
         "- Be concise and factual.\n"
         "- Prefer concrete details when available (method names, datasets, metrics, "
         "algorithms, or numerical results).\n"
-        "- If possible, mention which section the information comes from.\n\n"
+        "- If possible, mention which section the information comes from.\n"
+        "- Format your answer in Markdown. Use **bold** for key terms, bullet lists for "
+        "multiple points, and backticks for model names, dataset names, or metrics.\n\n"
 
         "Examples of questions you may answer:\n"
         "- What problem does the paper address?\n"

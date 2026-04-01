@@ -27,6 +27,7 @@ load_dotenv()
 
 sessions: dict[str, dict] = {}
 SESSION_TTL = 3600
+MAX_RETRY_FOR_RETRIEVAL = 3
 
 class ChatRequest(BaseModel):
     session_id: str
@@ -111,12 +112,22 @@ async def chat(body: ChatRequest):
     agent = session["agent"]
     question = body.message
     thread_id = session["thread_id"]
+    
+    response = None
+    for _ in range(MAX_RETRY_FOR_RETRIEVAL):
+        try:
+            response = await asyncio.to_thread(
+                agent.invoke,
+                {"messages": [{"role": "user", "content": question}]},
+                {"configurable": {"thread_id": thread_id}}
+            )
+            break
+        except Exception as e:
+            logger.exception("Internal error during chat call.\n" + str(e))
+            continue
 
-    response = await asyncio.to_thread(
-        agent.invoke,
-        {"messages": [{"role": "user", "content": question}]},
-        {"configurable": {"thread_id": thread_id}}
-    )
+    if response is None:
+        raise HTTPException(status_code=502, detail="Failed to get a response. Please try again.")
 
     answer = response["messages"][-1].content
     return {"question": question, "answer": answer}

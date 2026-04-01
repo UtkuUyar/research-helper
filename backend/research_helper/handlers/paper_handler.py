@@ -4,7 +4,7 @@ import re
 import pymupdf4llm
 
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from langchain_openai import ChatOpenAI
 from langchain.messages import SystemMessage, HumanMessage
 
@@ -14,7 +14,7 @@ from .rag import ChunkHandler, VectorStoreHandler
 class SectionSummary(BaseModel):
     summary: str
     key_points: List[str]
-    important_entities: List[str] = []
+    important_entities: Optional[List[str]] = None
 
 
 class PaperSummary(BaseModel):
@@ -127,7 +127,7 @@ class PaperHandler:
     
     def _section_summary(self, section):
         system_prompt, section_prompt = get_section_summary_prompts(section)
-        structured_llm = self.llm.with_structured_output(SectionSummary)
+        structured_llm = self.llm.with_structured_output(SectionSummary, strict=True)
         
         return structured_llm.invoke(
             [
@@ -145,7 +145,7 @@ class PaperHandler:
         assert self.section_summaries != None
 
         system_prompt, paper_prompt = get_paper_summary_prompts(self.section_summaries)
-        structured_llm = self.llm.with_structured_output(PaperSummary)
+        structured_llm = self.llm.with_structured_output(PaperSummary, strict=True)
 
         return structured_llm.invoke(
             [

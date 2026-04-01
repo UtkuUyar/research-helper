@@ -41,16 +41,16 @@ function App() {
         paper_summary: PaperSummary,
     ) {
         const formattedSummary = [
-            `**Research Problem**\n${paper_summary.research_problem}`,
+            `**Research Problem**\n\n${paper_summary.research_problem}`,
             paper_summary.key_contributions?.length
-                ? `**Key Contributions**\n${paper_summary.key_contributions.map((c: string) => `• ${c}`).join("\n")}`
+                ? `**Key Contributions**\n\n${paper_summary.key_contributions.map((c: string) => `- ${c}`).join("\n")}`
                 : null,
-            `**Method Overview**\n${paper_summary.method_overview}`,
+            `**Method Overview**\n\n${paper_summary.method_overview}`,
             paper_summary.experimental_findings?.length
-                ? `**Experimental Findings**\n${paper_summary.experimental_findings.map((f: string) => `• ${f}`).join("\n")}`
+                ? `**Experimental Findings**\n\n${paper_summary.experimental_findings.map((f: string) => `- ${f}`).join("\n")}`
                 : null,
             paper_summary.limitations?.length
-                ? `**Limitations**\n${paper_summary.limitations.map((l: string) => `• ${l}`).join("\n")}`
+                ? `**Limitations**\n\n${paper_summary.limitations.map((l: string) => `- ${l}`).join("\n")}`
                 : null,
         ]
             .filter(Boolean)

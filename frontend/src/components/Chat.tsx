@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type { Session, Message } from "../types";
 
 const API_URL = import.meta.env.VITE_BACKEND_API_ENDPOINT;
@@ -74,7 +75,13 @@ function Chat({ session, onAddMessage, onGoHome }: Props) {
                             className={`p-3 rounded ${msg.role === "user" ? "bg-primary text-white" : "bg-white border"}`}
                             style={{ maxWidth: "70%" }}
                         >
-                            {msg.content}
+                            {msg.role === "assistant" ? (
+                                <div className="markdown-body">
+                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                </div>
+                            ) : (
+                                msg.content
+                            )}
                         </div>
                     </div>
                 ))}
