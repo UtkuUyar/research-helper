@@ -79,17 +79,18 @@ Research Helper is a full-stack AI application that lets you have a conversation
 - Node.js 18+
 - A [Groq API key](https://console.groq.com/)
 
+Create a `.env` file in the **root of the repository**:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+VITE_BACKEND_API_ENDPOINT=http://localhost:8000
+```
+
 ### Backend
 
 ```bash
 cd backend
 pip install -r requirements.txt
-```
-
-Create a `.env` file in `backend/`:
-
-```env
-GROQ_API_KEY=your_groq_api_key_here
 ```
 
 Start the server:
@@ -105,12 +106,6 @@ The API will be available at `http://localhost:8000`.
 ```bash
 cd frontend
 npm install
-```
-
-Create a `.env` file in `frontend/`:
-
-```env
-VITE_BACKEND_API_ENDPOINT=http://localhost:8000
 ```
 
 Start the dev server:

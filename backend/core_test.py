@@ -46,13 +46,13 @@ def chat_with_paper(agent):
 if __name__ == "__main__":
     load_dotenv()
 
-    paper_name = "wanderlust"
+    paper_name = "sample_paper_fasterrcnn"
     file_path = f".\data\{paper_name}.pdf"
     
-    output_dir = Path(f".\output\{paper_name}")
-    output_dir.mkdir(exist_ok=True, parents=True)
+    # output_dir = Path(f".\output\{paper_name}")
+    # output_dir.mkdir(exist_ok=True, parents=True)
 
-    paper_handler = PaperHandler(file_path=file_path, output_dir=output_dir, summarize=True)
+    paper_handler = PaperHandler(file_path=file_path, summarize=True)
     agent = build_chat_agent(paper_handler)
 
     chat_with_paper(agent)
