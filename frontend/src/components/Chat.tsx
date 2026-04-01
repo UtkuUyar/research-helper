@@ -13,7 +13,10 @@ function Chat({ session, onAddMessage, onGoHome }: Props) {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
 
-    async function handleSend(e: React.FormEvent<HTMLFormElement>) {
+    const isExpired =
+        Date.now() / 1000 - session.created_at > session.session_ttl;
+
+    async function handleSend(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!input.trim()) return;
 
@@ -81,23 +84,33 @@ function Chat({ session, onAddMessage, onGoHome }: Props) {
             </div>
 
             {/* Input */}
-            <form className="p-3 border-top d-flex gap-2" onSubmit={handleSend}>
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ask a question about the paper..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    disabled={loading}
-                />
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading || !input.trim()}
+            {isExpired ? (
+                <div className="p-3 border-top text-center text-muted bg-white">
+                    This session has expired. You can read the chat but can no
+                    longer send messages.
+                </div>
+            ) : (
+                <form
+                    className="p-3 border-top d-flex gap-2"
+                    onSubmit={handleSend}
                 >
-                    Send
-                </button>
-            </form>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ask a question about the paper..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        disabled={loading}
+                    />
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={loading || !input.trim()}
+                    >
+                        Send
+                    </button>
+                </form>
+            )}
         </div>
     );
 }

@@ -88,12 +88,14 @@ async def upload_paper(
         "agent": agent,
         "paper_handler": paper_handler,
         "thread_id": session_id,
-        "created_at": time.time()
+        "created_at": time.time(),
     }
 
     return {
         "session_id": session_id,
         "title": paper_handler.title,
+        "created_at": sessions[session_id]["created_at"],
+        "session_ttl": SESSION_TTL,
         "paper_summary": paper_handler.paper_summary.model_dump(),
     }
 

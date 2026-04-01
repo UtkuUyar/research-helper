@@ -7,6 +7,8 @@ type Props = {
     onUploadSuccess: (
         sessionId: string,
         title: string,
+        created_at: number,
+        session_ttl: number,
         summary: PaperSummary,
     ) => void;
     onCancel: () => void;
@@ -46,7 +48,13 @@ function PaperUpload({ onUploadSuccess, onCancel }: Props) {
             }
 
             const data = await response.json();
-            onUploadSuccess(data.session_id, data.title, data.paper_summary);
+            onUploadSuccess(
+                data.session_id,
+                data.title,
+                data.created_at,
+                data.session_ttl,
+                data.paper_summary,
+            );
         } catch (err) {
             setError(err instanceof Error ? err.message : "Upload failed.");
         } finally {

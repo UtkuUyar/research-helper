@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Sidebar from "./components/Sidebar";
 import Starter from "./components/Starter";
@@ -11,12 +11,33 @@ type View = "home" | "upload" | "chat";
 
 function App() {
     const [view, setView] = useState<View>("home");
-    const [sessions, setSessions] = useState<Session[]>([]);
-    const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+    const [sessions, setSessions] = useState<Session[]>(() => {
+        try {
+            const stored = localStorage.getItem("sessions");
+            return stored ? (JSON.parse(stored) as Session[]) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [activeSessionId, setActiveSessionId] = useState<string | null>(() =>
+        localStorage.getItem("activeSessionId"),
+    );
+
+    useEffect(() => {
+        localStorage.setItem("sessions", JSON.stringify(sessions));
+    }, [sessions]);
+
+    useEffect(() => {
+        if (activeSessionId)
+            localStorage.setItem("activeSessionId", activeSessionId);
+        else localStorage.removeItem("activeSessionId");
+    }, [activeSessionId]);
 
     function handleUploadSuccess(
         sessionId: string,
         title: string,
+        created_at: number,
+        session_ttl: number,
         paper_summary: PaperSummary,
     ) {
         const formattedSummary = [
@@ -38,6 +59,8 @@ function App() {
         const newSession: Session = {
             id: sessionId,
             title: title,
+            created_at: created_at,
+            session_ttl: session_ttl,
             messages: [{ role: "assistant", content: formattedSummary }],
         };
 

@@ -20,7 +20,7 @@ class RetrieveContextTool(BaseTool):
 
     def _run(self, query: str):
 
-        docs = self.vs_handler.similarity_search(query, k=8)
+        docs = self.vs_handler.similarity_search(query, k=4)
 
         serialized = "\n\n".join(
             f"Source: {doc.metadata}\nContent: {doc.page_content}"

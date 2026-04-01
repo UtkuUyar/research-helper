@@ -5,7 +5,9 @@ export type Message = {
 
 export type Session = { 
     id: string; 
-    title: string; 
+    title: string;
+    created_at: number;
+    session_ttl: number;
     messages: Message[] 
 };
 
